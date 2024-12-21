@@ -103,8 +103,8 @@
 
 В результате всех проделанных действий для задания 2 получилось такое дерево для ветки `main`:
 
-![img.png](img.png)
+![img.png](files_for_lab5/img.png)
 
 И такое для ветки `develop`:
 
-![img_1.png](img_1.png)
+![img_1.png](files_for_lab5/img_1.png)
