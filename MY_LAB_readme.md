@@ -84,4 +84,99 @@
 - Логирование в Bash [Рекомендуемый источник](https://habr.com/ru/articles/281601/)
 - Обработка ошибок в Bash [Рекомендуемый источник](https://bash-linux.ru/scripts/34/perehvat-i-obrabotka-oshibok-v-bash/)
 - Перенаправление потоков ввода/вывода [Рекомендуемый источник](https://askubuntu.com/questions/811439/bash-set-x-logs-to-file)
-   
+
+# Решение данной лабораторной работы
+Написание скрипта для логирования функции деления:
+```
+#!/bin/bash
+
+LOG_FILE="script.log"
+
+# Функция логирования
+log() {
+    local level="$1"
+    shift
+    local message="$@"
+    echo "$(date '+%Y-%m-%d %H:%M:%S') [$level] $message" | tee -a "$LOG_FILE"
+}
+
+# Функция деления
+divide() {
+    local a="$1"
+    local b="$2"
+    
+    log "DEBUG" "Attempting to divide $a by $b"
+    
+    if [[ "$b" -eq 0 ]]; then
+        log "ERROR" "Division by zero attempted!"
+        echo "None"
+        return 1
+    else
+        local result
+        result=$(echo "scale=2; $a / $b" | bc)
+        log "INFO" "Division successful: $result"
+        echo "$result"
+        return 0
+    fi
+}
+```
+
+`LOG_FILE="script.log"` -  определяет имя файла, в который будут записываться логи.
+
+Как работает функция логирования:
+
+- Первый аргумент ($1) задает уровень логирования (DEBUG, INFO, ERROR).
+- Все остальные аргументы ($@) формируют текст сообщения.
+- Команда date:
+  Возвращает текущую дату и время в формате ГГГГ-ММ-ДД ЧЧ:ММ:СС.
+- Команда tee -a:
+  Одновременно выводит строку на экран и добавляет ее в конец файла script.log.
+
+Пример вызова:
+```
+log "INFO" "Script started."
+```
+В лог-файл добавляется строка:
+```
+2024-12-21 12:00:00 [INFO] Script started.
+```
+
+Как работает функция деления:
+- Принимает два аргумента:\
+   $a — делимое.\
+   $b — делитель.
+- Логирование перед вычислением:
+  ```
+  log "DEBUG" "Attempting to divide $a by $b"
+  ```
+- Проверка деления на ноль:
+  Проверка `if [[ "$b" -eq 0 ]]`:
+  - Если делитель равен нулю, операция прерывается.
+- Логирование ошибки:
+  - В лог записывается сообщение уровня ERROR.
+- Вывод ошибки:
+  - На экран выводится None.
+  - Скрипт возвращает код ошибки 1.
+
+Пример вызова:
+```
+divide 10 2
+divide 10 0
+```
+- Первый вызов divide 10 2:
+  - Делит 10 на 2.
+  - Успешно логирует результат.
+
+- Второй вызов divide 10 0:
+  - Пытается делить 10 на 0.
+  - Логирует ошибку деления на ноль.
+ 
+Пример содержимого `script.log` после выполнения:
+```
+2024-12-21 12:02:00 [DEBUG] Attempting to divide 10 by 2
+2024-12-21 12:02:00 [INFO] Division successful: 5.00
+2024-12-21 12:02:10 [DEBUG] Attempting to divide 10 by 0
+2024-12-21 12:02:10 [ERROR] Division by zero attempted!
+```
+
+
